@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مشغل الأغاني - مأساة</title>
+    
+    <style>
+        /* ========================================
+        🎨 قسم CSS: التنسيق والمظهر
+        (لتجسيد تصميم الصورة المرسلة - مأساة)
+        ======================================== */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #1a1a1a; /* خلفية داكنة عامة */
+            direction: rtl; /* دعم اللغة العربية */
+        }
+
+        .music-player {
+            width: 375px; 
+            background-color: #331f28; /* لون الخلفية الداكن المطابق للصورة */
+            color: #fff;
+            padding: 20px;
+            border-radius: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 650px;
+        }
+
+        /* تنسيق الشريط العلوي */
+        .player-header {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+        .back-icon, .more-options-icon {
+            font-size: 24px;
+            cursor: pointer;
+            padding: 5px;
+        }
+        .player-title {
+            color: #ccc;
+            font-size: 14px;
+        }
+
+        /* غلاف الألبوم */
+        .album-art-container {
+            margin: 20px 0;
+            width: 85%;
+            aspect-ratio: 1 / 1;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8);
+        }
+        .album-art {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* معلومات الأغنية */
+        .song-info {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .song-title {
+            font-size: 26px;
+            font-weight: bold;
+            margin: 0;
+        }
+        .artist-name {
+            font-size: 18px;
+            color: #ccc;
+            margin: 5px 0 0 0;
+        }
+
+        /* شريط التقدم */
+        .progress-container {
+            width: 90%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            gap: 10px;
+        }
+        .progress-bar {
+            flex-grow: 1;
+            height: 6px;
+            cursor: pointer;
+            -webkit-appearance: none; 
+            appearance: none;
+            background: #5a3c48; /* لون الشريط غير الممتلئ */
+            border-radius: 5px;
+        }
+        
+        /* تنسيق مقبض الشريط (Thumb) */
+        .progress-bar::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #f7a072; /* لون مقبض التقدم البرتقالي */
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        
+        /* الأوقات */
+        .time-elapsed, .time-duration {
+            font-size: 14px;
+            color: #ccc;
+        }
+
+        /* أزرار التحكم */
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            width: 90%;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+        .control-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            font-size: 22px;
+            padding: 10px;
+            transition: color 0.2s;
+        }
+        .control-btn:hover {
+            color: #f7a072;
+        }
+        .play-pause-btn {
+            font-size: 45px;
+            color: #f7a072; /* لون الزر الرئيسي */
+        }
+
+        /* شريط الأدوات السفلي */
+        .bottom-toolbar {
+            width: 80%;
+            display: flex;
+            justify-content: space-around;
+            padding-top: 20px;
+            border-top: 1px solid #4a303c;
+        }
+        .toolbar-icon {
+            font-size: 24px;
+            cursor: pointer;
+            color: #ccc;
+            padding: 10px;
+        }
+        .toolbar-icon:hover {
+            color: #f7a072;
+        }
+    </style>
+</head>
+<body>
+
+    <audio id="audio-player" src="song.mp3"></audio> 
+
+    <div class="music-player">
+        <div class="player-header">
+            <span class="back-icon">›</span>
+            <span class="player-title">مشغل الأغاني</span>
+            <span class="more-options-icon">⋮</span>
+        </div>
+
+        <div class="album-art-container">
+            <img src="Maasat.jpg" alt="غلاف الألبوم" class="album-art">
+        </div>
+
+        <div class="song-info">
+            <h1 class="song-title">مأساة</h1>
+            <p class="artist-name">Maha Ftouni</p>
+        </div>
+
+        <div class="progress-container">
+            <span class="time-elapsed">0:00</span>
+            <input type="range" class="progress-bar" value="0" min="0" max="100">
+            <span class="time-duration">0:00</span>
+        </div>
+
+        <div class="controls">
+            <button class="control-btn shuffle-btn">⇄</button>
+            <button class="control-btn prev-btn">⏮</button>
+            <button class="control-btn play-pause-btn">▶</button>
+            <button class="control-btn next-btn">⏭</button>
+            <button class="control-btn repeat-btn">↺</button>
+        </div>
+
+        <div class="bottom-toolbar">
+            <span class="toolbar-icon heart-icon">❤</span>
+            <span class="toolbar-icon share-icon">⤴</span>
+            <span class="toolbar-icon lyrics-icon">📝</span>
+        </div>
+    </div>
+
+    <script>
+        /* ========================================
+        ⚙️ قسم JavaScript: الوظائف والتفاعل
+        ======================================== */
+        document.addEventListener('DOMContentLoaded', () => {
+            const playPauseBtn = document.querySelector('.play-pause-btn');
+            const audioPlayer = document.getElementById('audio-player'); 
+            const progressBar = document.querySelector('.progress-bar');
+            const timeElapsedElement = document.querySelector('.time-elapsed');
+            const timeDurationElement = document.querySelector('.time-duration');
+            let isPlaying = false; 
+            
+            // --- دالة مساعدة لتنسيق الوقت (من الثواني إلى M:SS) ---
+            const formatTime = (totalSeconds) => {
+                const minutes = Math.floor(totalSeconds / 60);
+                const seconds = Math.floor(totalSeconds % 60).toString().padStart(2, '0');
+                return `${minutes}:${seconds}`;
+            };
+            
+            // --- 1. وظيفة زر التشغيل/الإيقاف المؤقت ---
+            playPauseBtn.addEventListener('click', () => {
+                if (isPlaying) {
+                    audioPlayer.pause(); 
+                    playPauseBtn.innerHTML = '▶'; 
+                } else {
+                    audioPlayer.play(); 
+                    playPauseBtn.innerHTML = '⏸'; 
+                }
+                isPlaying = !isPlaying;
+            });
+
+            // --- 2. تحديث مدة الأغنية الكلية عند تحميل البيانات الوصفية ---
+            audioPlayer.addEventListener('loadedmetadata', () => {
+                timeDurationElement.textContent = formatTime(audioPlayer.duration);
+                // تعيين الحد الأقصى لشريط التقدم ليتطابق مع مدة الأغنية بالثواني
+                progressBar.max = audioPlayer.duration; 
+            });
+
+            // --- 3. وظيفة تحديث شريط التقدم والأوقات أثناء التشغيل ---
+            audioPlayer.addEventListener('timeupdate', () => {
+                if (!audioPlayer.paused) { // تحديث فقط عندما لا يكون متوقفاً
+                    const currentTime = audioPlayer.currentTime;
+                    const duration = audioPlayer.duration;
+
+                    // تحديث شريط التقدم (بناءً على الثواني)
+                    progressBar.value = currentTime;
+
+                    // تحديث العرض البصري لشريط التقدم الممتلئ
+                    const progressPercentage = (currentTime / duration) * 100;
+                    progressBar.style.background = `linear-gradient(to right, #f7a072 ${progressPercentage}%, #5a3c48 ${progressPercentage}%)`;
+                    
+                    // تحديث عرض الوقت المنقضي
+                    timeElapsedElement.textContent = formatTime(currentTime);
+
+                    // تحديث عرض الوقت المتبقي (اختياري)
+                    const remainingTime = duration - currentTime;
+                    // timeDurationElement.textContent = `-${formatTime(remainingTime)}`; // لعرض الوقت المتبقي
+                }
+            });
+
+            // --- 4. وظيفة التفاعل مع شريط التقدم (السحب) ---
+            progressBar.addEventListener('input', (e) => {
+                const seekToTime = e.target.value;
+                audioPlayer.currentTime = seekToTime;
+                
+                // تحديث العرض البصري للشريط فوراً عند السحب
+                const progressPercentage = (seekToTime / audioPlayer.duration) * 100;
+                e.target.style.background = `linear-gradient(to right, #f7a072 ${progressPercentage}%, #5a3c48 ${progressPercentage}%)`;
+
+                // تحديث الوقت المنقضي فوراً
+                timeElapsedElement.textContent = formatTime(seekToTime);
+            });
+        });
+    </script>
+
+</body>
+</html>
