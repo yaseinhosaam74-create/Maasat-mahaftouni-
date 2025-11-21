@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎵 مشغل أغنية ستايل سبوتيفاي: قلبي أنا موجوع</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        /* 1. لوحة الألوان والتصميم (مطابق للمثال مع لمسة أنثوية) */
+        :root {
+            --dark-bg: #121212;         /* خلفية سبوتيفاي الداكنة */
+            --player-bg: #1A1A1A;       /* خلفية شريط المشغل السفلي */
+            --primary-accent: #BB86FC;  /* بنفسجي/وردي ناعم - كلون تمييز ثانوي */
+            --main-icon-color: #FFFFFF; /* لون الأيقونات الأساسي (أبيض) */
+            --text-color: #FFFFFF;      /* نص أبيض ناصع */
+            --muted-text: #B3B3B3;      /* نص ثانوي باهت */
+            --progress-bar-fill: #FFFFFF; /* لون شريط التقدم */
+            --progress-bar-bg: #404040; /* خلفية شريط التقدم */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-color);
+            line-height: 1.6;
+            direction: rtl;
+            text-align: center;
+            overflow-x: hidden; /* لمنع ظهور شريط التمرير الأفقي */
+        }
+
+        /* 2. منطقة المحتوى الرئيسية */
+        .main-content {
+            max-width: 600px; /* عرض تقريبي للجوال في الصورة */
+            margin: 0 auto;
+            background-color: var(--dark-bg);
+            padding-bottom: 120px; /* مساحة للمشغل الثابت */
+        }
+
+        /* 3. حاوية الفيديو الرئيسية (مثل الصورة الكبيرة) */
+        #video-display-container {
+            width: 100%;
+            padding-top: 100%; /* نسبة عرض إلى ارتفاع 1:1 لجعلها مربعة مثل الصورة */
+            position: relative;
+            overflow: hidden;
+            background-color: black; /* خلفية سوداء إذا لم يتم تحميل الفيديو */
+        }
+
+        #cover-video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* لملء المساحة المربعة */
+            pointer-events: none; /* لمنع التفاعل مع الفيديو */
+        }
+
+        /* 4. معلومات الأغنية تحت الفيديو */
+        .song-details-top {
+            text-align: right;
+            padding: 20px;
+            padding-bottom: 0px;
+        }
+        .song-details-top .title {
+            font-size: 1.7em;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        .song-details-top .artist {
+            font-size: 1.1em;
+            color: var(--muted-text);
+            margin-bottom: 20px;
+        }
+
+        /* 5. أيقونة القلب (المفضلة) */
+        .favorite-icon {
+            color: var(--muted-text);
+            font-size: 24px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: color 0.2s;
+        }
+        .favorite-icon:hover {
+            color: var(--text-color);
+        }
+
+        /* 6. منطقة الكلمات */
+        #lyrics-section {
+            padding: 20px;
+            margin-top: 20px;
+            text-align: right;
+            max-height: 300px; /* ارتفاع أقصى للكلمات */
+            overflow-y: auto; /* إضافة شريط تمرير إذا زادت الكلمات */
+        }
+        #lyrics-section::-webkit-scrollbar {
+            width: 8px;
+        }
+        #lyrics-section::-webkit-scrollbar-thumb {
+            background: #444;
+            border-radius: 4px;
+        }
+        #lyrics-section::-webkit-scrollbar-track {
+            background: #222;
+        }
+
+        .lyric-line {
+            font-size: 1.2em;
+            margin: 15px 0;
+            padding: 5px 0px;
+            transition: color 0.4s ease-out;
+            cursor: pointer;
+            color: var(--muted-text);
+            font-weight: 400;
+        }
+
+        .active {
+            color: var(--text-color);
+            font-weight: 700;
+            /* text-shadow: 0 0 8px rgba(255, 255, 255, 0.4); */ /* توهج أبيض خفيف */
+        }
+        
+        /* 7. شريط المشغل السفلي (مطابق للمثال) */
+        #controls-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: var(--player-bg);
+            padding: 10px 15px;
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column; /* الأزرار والتقدم في صفوف منفصلة */
+            justify-content: center;
+            align-items: center;
+            height: 90px; /* ارتفاع ثابت */
+        }
+
+        /* شريط التقدم في الأعلى */
+        .progress-bar-container {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            max-width: 450px; /* عرض شريط التقدم */
+            margin-bottom: 5px; /* مسافة بين التقدم والأزرار */
+            font-size: 0.8em;
+            color: var(--muted-text);
+        }
+
+        .progress-bar {
+            flex-grow: 1;
+            height: 4px;
+            background: var(--progress-bar-bg);
+            border-radius: 2px;
+            margin: 0 8px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .progress {
+            height: 100%;
+            width: 0%;
+            background-color: var(--progress-bar-fill);
+            border-radius: 2px;
+            position: relative;
+            transition: width 0.1s linear;
+        }
+        
+        .progress::after {
+            content: '';
+            position: absolute;
+            right: -6px; /* لتوسيط المقبض */
+            top: 50%;
+            transform: translateY(-50%);
+            width: 12px;
+            height: 12px;
+            background: var(--progress-bar-fill);
+            border-radius: 50%;
+            opacity: 0; 
+            transition: opacity 0.2s;
+        }
+        .progress-bar:hover .progress::after {
+            opacity: 1;
+        }
+
+        /* الأزرار (تشغيل/إيقاف، تخطي) */
+        .controls-buttons {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .controls-buttons button {
+            background: none;
+            border: none;
+            color: var(--main-icon-color);
+            font-size: 24px; /* حجم الأيقونات */
+            cursor: pointer;
+            padding: 0 15px; /* مسافة بين الأزرار */
+            transition: color 0.2s, transform 0.2s;
+        }
+        .controls-buttons button:hover {
+            color: var(--muted-text); /* لون أغمق عند التفاعل */
+            transform: scale(1.1);
+        }
+
+        #play-pause-btn {
+            font-size: 38px; /* زر التشغيل/الإيقاف أكبر */
+            color: var(--main-icon-color);
+        }
+        #play-pause-btn:hover {
+             color: var(--primary-accent); /* تمييز زر التشغيل */
+        }
+
+        /* أيقونات إضافية في أطراف الشريط (غير موجودة في الصورة ولكن شائعة في spotify) */
+        .bottom-nav-icons {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 60px; /* ارتفاع شريط التنقل السفلي */
+            background-color: var(--player-bg);
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding-bottom: env(safe-area-inset-bottom); /* لدعم الـ Notch في الجوالات */
+            z-index: 1000;
+        }
+        .bottom-nav-icons button {
+            background: none;
+            border: none;
+            color: var(--muted-text);
+            font-size: 22px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .bottom-nav-icons button:hover, .bottom-nav-icons button.active-nav {
+            color: var(--text-color);
+        }
+
+        /* إخفاء المشغل الافتراضي */
+        #hiddenAudio {
+            display: none;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="main-content">
+        <div id="video-display-container">
+            <video id="cover-video" src="maha_ftouni_video.mp4" autoplay loop muted playsinline poster="placeholder_image.jpg"></video>
+        </div>
+
+        <div class="song-details-top">
+            <i class="fas fa-heart favorite-icon"></i> <div class="title">قلبي أنا موجوع</div>
+            <div class="artist">مها فتوني</div>
+        </div>
+
+        <div id="lyrics-section">
+            <div id="lyrics">
+                <p class="lyric-line" data-time="0">قلبي أنا موجوع وأما الليل ييجي منامش</p>
+                <p class="lyric-line" data-time="4.1">ليه أنا أبكي دموع وإنت اللي متتألمش</p>
+                <p class="lyric-line" data-time="8.2">خليتني بموت مش عارفة عملت أنا إيه</p>
+                <p class="lyric-line" data-time="12.7">يعني إنت تروح وأنا وجعي ده ما بيبردش</p>
+                <p class="lyric-line" data-time="16.9">أنا كلي جروح وإنت مفيش فيك ولا خدش</p>
+                <p class="lyric-line" data-time="21.1">ياه ع الجبروت ياه ع اللي بحس أنا بيه</p>
+
+                <p class="lyric-line chorus" data-time="25.5">شوفت المآساة إنت اللي جارحني وأنا اللي بدور دايما ع المواساة</p>
+                <p class="lyric-line chorus" data-time="30.5">والجرح بيتجدد كل ما بنساه شوفت المعاناة، شوفت المعاناة</p>
+                <p class="lyric-line chorus" data-time="35.0">شوفت المآساة إنت اللي جارحني وأنا اللي بدور دايما ع المواساة</p>
+                <p class="lyric-line chorus" data-time="40.0">والجرح بيتجدد كل ما بنساه شوفت المعاناة، شوفت المعاناة</p>
+                
+                <p class="lyric-line" data-time="45.1">أنا قلبي عم يوجعني</p>
+                <p class="lyric-line" data-time="47.9">مش عارفة أنساك ولا عايزة جراحي تقل</p>
+                <p class="lyric-line" data-time="52.4">وكإني معاك عايزة أنا لغيابك حل</p>
+                <p class="lyric-line" data-time="56.6">نفسي أبقى بخير زي ما كنت أنا قبليك</p>
+                <p class="lyric-line" data-time="61.0">طب ما إنت مشيت ونسيتني كإني مجتش</p>
+                <p class="lyric-line" data-time="65.3">يعني إنت نسيت طب ليه أنا بقى منستش</p>
+                <p class="lyric-line" data-time="69.7">بعتني ببلاش ومكانش فيه غيري شاريك</p>
+
+                <p class="lyric-line chorus" data-time="74.1">شوفت المآساة إنت اللي جارحني وأنا اللي بدور دايما ع المواساة</p>
+                <p class="lyric-line chorus" data-time="79.1">والجرح بيتجدد كل ما بنساه شوفت المعاناة، شوفت المعاناة</p>
+                <p class="lyric-line chorus" data-time="83.6">شوفت المآساة إنت اللي جارحني وأنا اللي بدور دايما ع المواساة</p>
+                <p class="lyric-line chorus" data-time="88.5">والجرح بيتجدد كل ما بنساه شوفت المعاناة، شوفت المعاناة</p>
+
+                <p class="lyric-line" data-time="93.6">لالالالا</p>
+                <p class="lyric-line" data-time="96.1">آه، آه، آه، آه</p>
+            </div>
+        </div>
+    </div>
+
+    <audio id="hiddenAudio" src="song.mp3"></audio>
+
+    <div id="controls-bar">
+        <div class="progress-bar-container">
+            <span id="currentTimeDisplay">0:00</span>
+            <div class="progress-bar">
+                <div class="progress" id="progressBar"></div>
+            </div>
+            <span id="durationDisplay">0:00</span>
+        </div>
+        
+        <div class="controls-buttons">
+            <button class="fas fa-random"></button> <button id="skip-back-btn" class="fas fa-step-backward"></button>
+            <button id="play-pause-btn" class="fas fa-play"></button>
+            <button id="skip-forward-btn" class="fas fa-step-forward"></button>
+            <button class="fas fa-redo-alt"></button> </div>
+    </div>
+
+    <script>
+        // === 1. تعريف العناصر الأساسية ===
+        const audioPlayer = document.getElementById('hiddenAudio');
+        const playPauseBtn = document.getElementById('play-pause-btn');
+        const skipBackBtn = document.getElementById('skip-back-btn');
+        const skipForwardBtn = document.getElementById('skip-forward-btn');
+        const progressBarContainer = document.querySelector('.progress-bar');
+        const progressBar = document.getElementById('progressBar');
+        const currentTimeDisplay = document.getElementById('currentTimeDisplay');
+        const durationDisplay = document.getElementById('durationDisplay');
+        const lyricLines = document.querySelectorAll('.lyric-line');
+        const coverVideo = document.getElementById('cover-video');
+        const lyricsSection = document.getElementById('lyrics-section'); // منطقة الكلمات
+
+        const timestamps = Array.from(lyricLines).map(line => ({
+            time: parseFloat(line.getAttribute('data-time')),
+            element: line
+        }));
+
+        let isPlaying = false;
+        
+        // === 2. وظائف تنسيق الوقت (مثل 3:45) ===
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+        
+        // === 3. وظيفة تحديث الكلمات ===
+        function updateLyrics() {
+            const currentTime = audioPlayer.currentTime;
+            let activeIndex = -1;
+
+            for (let i = 0; i < timestamps.length; i++) {
+                const startTime = timestamps[i].time;
+                const nextTime = (i + 1 < timestamps.length) ? timestamps[i + 1].time : Infinity;
+
+                if (currentTime >= startTime && currentTime < nextTime) {
+                    activeIndex = i;
+                    break;
+                }
+            }
+
+            lyricLines.forEach((line, index) => {
+                if (index === activeIndex) {
+                    line.classList.add('active');
+                    // تمرير الكلمات لتكون الجملة النشطة مرئية
+                    const containerHeight = lyricsSection.offsetHeight;
+                    const lineTop = line.offsetTop;
+                    const lineHeight = line.offsetHeight;
+
+                    // حساب التمرير ليكون السطر في المنتصف تقريباً
+                    lyricsSection.scrollTop = lineTop - (containerHeight / 2) + (lineHeight / 2);
+
+                } else {
+                    line.classList.remove('active');
+                }
+            });
+        }
+        
+        // === 4. وظيفة التحكم في التشغيل/الإيقاف ===
+        function togglePlayPause() {
+            if (isPlaying) {
+                audioPlayer.pause();
+                coverVideo.pause();
+                playPauseBtn.classList.remove('fa-pause');
+                playPauseBtn.classList.add('fa-play');
+            } else {
+                // محاولة تشغيل الفيديو والصوت
+                audioPlayer.play().catch(e => console.log("Audio play error:", e));
+                coverVideo.play().catch(e => console.log("Video play error:", e));
+                playPauseBtn.classList.remove('fa-play');
+                playPauseBtn.classList.add('fa-pause');
+            }
+            isPlaying = !isPlaying;
+        }
+
+        // === 5. وظيفة تحديث شريط التقدم والوقت ===
+        function updateProgress() {
+            const currentTime = audioPlayer.currentTime;
+            const duration = audioPlayer.duration;
+            
+            if (duration > 0) { // لتجنب القسمة على صفر قبل تحميل الأغنية
+                const progressPercent = (currentTime / duration) * 100;
+                progressBar.style.width = `${progressPercent}%`;
+            }
+
+            currentTimeDisplay.textContent = formatTime(currentTime);
+            updateLyrics();
+        }
+
+        // === 6. وظيفة التحكم بالماوس في شريط التقدم ===
+        function seek(e) {
+            const totalWidth = progressBarContainer.offsetWidth;
+            const clickX = e.offsetX;
+            const duration = audioPlayer.duration;
+            
+            if (duration > 0) {
+                const newTime = (clickX / totalWidth) * duration;
+                audioPlayer.currentTime = newTime;
+            }
+        }
+
+        // === 7. وظيفة القفز للأمام/الخلف ===
+        function skip(seconds) {
+            audioPlayer.currentTime += seconds;
+            coverVideo.currentTime += seconds;
+            // التأكد من أن الفيديو والصوت متزامنان بشكل جيد بعد القفز
+            if (isPlaying) {
+                coverVideo.play();
+            }
+        }
+
+        // === 8. الأحداث (Events) ===
+
+        // زر التشغيل/الإيقاف
+        playPauseBtn.addEventListener('click', togglePlayPause);
+        
+        // زر التخطي للخلف (العودة 10 ثوانٍ)
+        skipBackBtn.addEventListener('click', () => skip(-10));
+
+        // زر التخطي للأمام (التقدم 10 ثوانٍ)
+        skipForwardBtn.addEventListener('click', () => skip(10));
+
+        // النقر على شريط التقدم (للقفز لوقت معين)
+        progressBarContainer.addEventListener('click', seek);
+
+        // تحديث شريط التقدم والكلمات أثناء التشغيل
+        audioPlayer.addEventListener('timeupdate', updateProgress);
+
+        // عند تحميل بيانات الأغنية لأول مرة (لتعيين المدة الكلية)
+        audioPlayer.addEventListener('loadedmetadata', () => {
+            durationDisplay.textContent = formatTime(audioPlayer.duration);
+            coverVideo.play(); 
+            coverVideo.pause(); // إيقافه فورًا
+        });
+        
+        // عند انتهاء الأغنية
+        audioPlayer.addEventListener('ended', () => {
+            isPlaying = false;
+            playPauseBtn.classList.remove('fa-pause');
+            playPauseBtn.classList.add('fa-play');
+            audioPlayer.currentTime = 0; // إعادة للبداية
+            coverVideo.currentTime = 0;
+            coverVideo.pause();
+            
+            lyricLines.forEach(line => line.classList.remove('active'));
+            lyricsSection.scrollTop = 0; // إعادة تمرير الكلمات للأعلى
+        });
+        
+        // النقر على الكلمات (للقفز إليها في الأغنية)
+        lyricLines.forEach(line => {
+            line.addEventListener('click', () => {
+                const time = parseFloat(line.getAttribute('data-time'));
+                audioPlayer.currentTime = time;
+                coverVideo.currentTime = time;
+                if (!isPlaying) {
+                    togglePlayPause(); // تشغيل الأغنية إذا لم تكن تعمل
+                }
+            });
+        });
+
+    </script>
+</body>
+</html>
